@@ -24,8 +24,8 @@ LSgameofskill   <- function(jaspResults, dataset, options, state = NULL){
   xPoints   <- sapply(options[["players"]], function(p)p[["values"]][[2]])
   winPoints <- options[["winPoints"]]
   nSims     <- options[["nSims"]]
-  
-  
+
+
   ## check errors
   if(nPlayers < 2)
     .quitAnalysis(gettextf("Warning: The number of players must be at least 2. Adjust the inputs!"))
@@ -36,23 +36,23 @@ LSgameofskill   <- function(jaspResults, dataset, options, state = NULL){
       nPlayers,
       length(xPoints)
     ))
-  
+
   if(winPoints < 1)
     .quitAnalysis(gettext(
       "Warning: The number of point(s) required to win should be at least 1!"
     ))
-  
+
   if(max(xPoints) >= winPoints)
     .quitAnalysis(gettextf(
       "Warning: Player %1$i has already won the game. Adjust the inputs!",
-      which(xPoints == max(xPoints))[1]
+      which(xPoints == max(xPoints))
     ))
 
   if(sum(c(xPoints,priorSkill) > 0) != length(c(xPoints,priorSkill)))
     .quitAnalysis(gettextf(
       "Warning: No negative input values! Adjust the inputs!"
     ))
-  
+
   #if(nSims<100)
   #  .quitAnalysis(gettext(
   #    "Warning: The number of simulated games should not be smaller than 100!"
@@ -83,7 +83,7 @@ LSgameofskill   <- function(jaspResults, dataset, options, state = NULL){
   CIPlot0 <- ggplot2::ggplot(data= NULL) +
     #ggtitle("Probability of Player 1 Winning") +
     ggplot2::xlab("Number of Simulated Games") +
-    ggplot2::ylab("p(Winning the Game)") +
+    ggplot2::ylab("Pr(Winning the Game)") +
     ggplot2::coord_cartesian(xlim = c(0, nSims), ylim = c(0, 1))
 
   ## fill in the table and the plot
@@ -120,8 +120,7 @@ LSgameofskill   <- function(jaspResults, dataset, options, state = NULL){
       ggplot2::geom_line(color = "darkred", ggplot2::aes(x = c(1:nSims), y = rep(result[[2]], nSims))) +  # analytical prob
       ggplot2::geom_line(data= NULL, ggplot2::aes(x = c(1:nSims), y = result[[4]])) # simulated prob
 
-
-  }else if (nPlayers >= 3 && max(xPoints) < winPoints){
+  } else if (nPlayers >= 3 && max(xPoints) < winPoints){
     # output of compareSkillNPlayers, when there are three or more players
     result <- compareSkillNPlayers(xPoints, winPoints, priorSkill, nSims)
 
