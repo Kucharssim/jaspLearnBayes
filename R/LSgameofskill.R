@@ -45,13 +45,18 @@ LSgameofskill   <- function(jaspResults, dataset, options, state = NULL){
   if(max(xPoints) >= winPoints)
     .quitAnalysis(gettextf(
       "Warning: Player %1$i has already won the game. Adjust the inputs!",
-      which(xPoints == max(xPoints))
+      which(xPoints == max(xPoints))[1]
     ))
 
   if(sum(c(xPoints,priorSkill) > 0) != length(c(xPoints,priorSkill)))
     .quitAnalysis(gettextf(
       "Warning: No negative input values! Adjust the inputs!"
     ))
+
+  if(nSims<100)
+    .quitAnalysis(gettext(
+      "Warning: The number of simulated games should not be smaller than 100!"
+      ))
 
   #if(nSims<100)
   #  .quitAnalysis(gettext(
@@ -83,7 +88,7 @@ LSgameofskill   <- function(jaspResults, dataset, options, state = NULL){
   CIPlot0 <- ggplot2::ggplot(data= NULL) +
     #ggtitle("Probability of Player 1 Winning") +
     ggplot2::xlab("Number of Simulated Games") +
-    ggplot2::ylab("Pr(Winning the Game)") +
+    ggplot2::ylab("p(Winning the Game)") +
     ggplot2::coord_cartesian(xlim = c(0, nSims), ylim = c(0, 1))
 
   ## fill in the table and the plot
