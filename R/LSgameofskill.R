@@ -53,11 +53,6 @@ LSgameofskill   <- function(jaspResults, dataset, options, state = NULL){
       "Warning: No negative input values! Adjust the inputs!"
     ))
 
-  if(nSims<100)
-    .quitAnalysis(gettext(
-      "Warning: The number of simulated games should not be smaller than 100!"
-      ))
-
   #if(nSims<100)
   #  .quitAnalysis(gettext(
   #    "Warning: The number of simulated games should not be smaller than 100!"
