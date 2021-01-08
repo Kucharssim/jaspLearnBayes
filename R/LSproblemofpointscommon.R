@@ -24,6 +24,7 @@ dDirichletNegMultinom <- function(y, a, log = FALSE) {
 
 pDirichletNegMultinom <- function(y, a){
 
+
   #calculate the prob
   pCalculated <- 0
   for (l in 1:(prod(y)/y[1])){         #generate all the situations that player 1 wins
@@ -167,12 +168,11 @@ compareSkillTwoPlayers <- function(m, n, t, alpha = 1, beta = 1, simulation){
       }
 
     }
+
     # if mCopy == t, record 1,player 1 wins the single trial;
     # if nCopy == t, record 0, player 2 win the trial
     #recordGame[i] <- (t-nCopy)^(t-mCopy)
     recordGame[i] <- if (nCopy == t) 0 else 1.
-
-
   }
   pSimulated <- sum(recordGame)/simulation    # estimated probability that player 1 wins
 
