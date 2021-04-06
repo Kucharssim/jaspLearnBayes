@@ -428,6 +428,24 @@ summary.bcUncertainEstimates <- function(results, ciLevel = 0.95) {
   return()
 }
 
+.bcIconPlotManekin <- function(n, outcome, yScale, xScale) {
+
+  yMan <- c(0.3, 0.05, 0.05, 0.4, 0.4, 0.75, 0.75, 0.8, 0.8, 0.95) * yScale
+  xMan <- c(0.6, 0.6, 0.8, 0.8, 0.9, 0.9, 0.8, 0.8, 0.7, 0.7) * xScale
+
+  df <- data.frame(x = rep(c(xMan, 1-xMan[length(xMan):1]), n),
+                   y = rep(c(yMan, yMan[length(yMan):1]), n),
+                   n = as.factor(rep(1:n, each = 2*length(yMan))),
+                   outcome = as.factor(rep(outcome, each = 2*length(yMan))))
+
+  posMan <- expand.grid(1:(2*length(yMan)), x = 1:sqrt(n),  y = 1:sqrt(n))
+
+  df$y <- df$y + posMan$y * yScale
+  df$x <- df$x + posMan$x * xScale
+
+  return(df)
+}
+
 .bcPlotIconPlot <- function(results, jaspResults, dataset, options) {
   UseMethod(".bcPlotIconPlot")
 }
@@ -459,27 +477,34 @@ summary.bcUncertainEstimates <- function(results, ciLevel = 0.95) {
     xside <- yside <- 10
   }
 
-  data$n <- round(npoints*data$prop, digits = 0)
+  data$n  <- round(npoints*data$prop, digits = 0)
+  outcome <- rep(data$out, data$n)
 
-  data <- data.frame(
-    outcome = rep(data$out, data$n),
-    x = rep(c(1:xside,xside:1), times = yside/2),
-    y = rep(seq_len(yside), each = xside)
-  )
-  plot <- ggplot2::ggplot(data=data, mapping = ggplot2::aes(x=x,y=y,fill=outcome))
+  yScale  <- 4
+  xScale  <- 0.9
+  man     <- .bcIconPlotManekin(npoints, outcome, yScale, xScale)
 
-  if(npoints <= 100) {
-    plot <- plot + ggplot2::geom_tile(color = "black")
-  } else {
-    plot <- plot + ggplot2::geom_tile()
-  }
+  #data <- data.frame(
+  #  outcome = rep(data$out, data$n),
+  #  x = rep(c(1:xside,xside:1), times = yside/2),
+  #  y = rep(seq_len(yside), each = xside)
+  #)
+
+
+  plot <- ggplot2::ggplot(data=man, mapping = ggplot2::aes(x=x,y=y,fill=outcome,group=n)) + ggplot2::geom_polygon(color = "black")
+
+  #if(npoints <= 100) {
+  #  plot <- plot + ggplot2::geom_tile(color = "black")
+  #} else {
+  #  plot <- plot + ggplot2::geom_tile()
+  #}
 
   plot <- plot +
-    ggplot2::coord_fixed(ratio = xside/yside) +
+    #ggplot2::coord_fixed(ratio = xScale/yScale) +
     ggplot2::ylab(NULL) + ggplot2::xlab(NULL)
 
 
-  plot <- jaspGraphs::themeJasp(plot, xAxis = FALSE, yAxis = FALSE, legend.position = "right")
+  plot <- jaspGraphs::themeJasp(plot, xAxis = FALSE, yAxis = FALSE, legend.position = "none")
 
   jaspResults[["plotIconPlot"]] <-
     createJaspPlot(title        = gettext("Icon plot"),
