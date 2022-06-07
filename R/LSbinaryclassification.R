@@ -934,12 +934,12 @@ coef.bcPosteriorParams <- function(results) {
   )
 
   p <- ggplot2::ggplot() +
-    ggplot2::geom_abline(slope = prevalence, intercept = 0, linetype = 3) +
-    ggplot2::geom_hline(yintercept = prevalence, linetype = 2) +
     ggplot2::geom_polygon (ggplot2::aes(x = x, y = y),        data = leftTriangle,  fill = "gray") +
     ggplot2::geom_polygon (ggplot2::aes(x = x, y = y),        data = rightTriangle, fill = "gray") +
-    ggplot2::geom_line    (ggplot2::aes(x = tp + fp, y = tp), data = data) +
-    jaspGraphs::geom_point(ggplot2::aes(x = tp + fp, y = tp), data = pointData)+
+    ggplot2::geom_line    (ggplot2::aes(x = tp + fp, y = tp), data = data,      size = 1.5) +
+    jaspGraphs::geom_point(ggplot2::aes(x = tp + fp, y = tp), data = pointData, size = 5)+
+    ggplot2::geom_abline  (slope = prevalence, intercept = 0, linetype = 2, size = 1) +
+    ggplot2::geom_hline   (yintercept = prevalence,           linetype = 3, size = 1) +
     jaspGraphs::themeJaspRaw() +
     ggplot2::xlab(gettext("True Positives + False Positives")) +
     ggplot2::ylab(gettext("True Positives")) +
@@ -947,7 +947,6 @@ coef.bcPosteriorParams <- function(results) {
       breaks = seq(0, 1, by = 1/4),
       labels = c("0", ".25", ".5", ".75", "1")
     )
-
 
   return(p)
 }
