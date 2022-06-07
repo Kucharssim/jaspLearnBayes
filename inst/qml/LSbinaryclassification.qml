@@ -124,6 +124,10 @@ Form {
 					IntegerField{ name: "plotRocLinesNr"; min: 0; defaultValue: 100; max: 1000 }
 				}
 			}
+			CheckBox
+			{
+				name: "plotTOC"; label: qsTr("TOC")
+			}
 			CheckBox { name: "plotTestCharacteristics";				label: qsTr("Test characteristics by threshold")	}
 			CheckBox { name: "plotVaryingPrevalence";				label: qsTr("PPV and NPV by prevalence")			}
 			CheckBox { name: "plotAlluvial";						label: qsTr("Alluvial plot")						}

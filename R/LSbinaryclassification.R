@@ -518,11 +518,12 @@ coef.bcPosteriorParams <- function(results) {
   .bcPlotPriorPosteriorPositive(results, plotsContainer, dataset, options, ready, position = 1)
   .bcPlotIconPlot              (results, plotsContainer, dataset, options, ready, position = 2)
   .bcPlotROC                   (results, plotsContainer, dataset, options, ready, position = 3)
-  .bcPlotTestCharacteristics   (results, plotsContainer, dataset, options, ready, position = 4)
-  .bcPlotVaryingPrevalence     (results, plotsContainer, dataset, options, ready, position = 5)
-  .bcPlotAlluvial              (results, plotsContainer, dataset, options, ready, position = 6)
-  .bcPlotSignal                (results, plotsContainer, dataset, options, ready, position = 7)
-  .bcPlotEstimates             (results, plotsContainer, dataset, options, ready, position = 8)
+  .bcPlotTOC                   (results, plotsContainer, dataset, options, ready, position = 4)
+  .bcPlotTestCharacteristics   (results, plotsContainer, dataset, options, ready, position = 5)
+  .bcPlotVaryingPrevalence     (results, plotsContainer, dataset, options, ready, position = 6)
+  .bcPlotAlluvial              (results, plotsContainer, dataset, options, ready, position = 7)
+  .bcPlotSignal                (results, plotsContainer, dataset, options, ready, position = 8)
+  .bcPlotEstimates             (results, plotsContainer, dataset, options, ready, position = 9)
 }
 
 ## Prior posterior plot ----
@@ -882,6 +883,73 @@ coef.bcPosteriorParams <- function(results) {
   plot <- jaspGraphs::themeJasp(plot)
 
   return(plot)
+}
+
+## TOC plot ----
+.bcPlotTOC <- function(results, plotsContainer, dataset, options, ready, position) {
+  if( isFALSE(options[["plotTOC"]])        ) return()
+  if(!is.null(plotsContainer[["plotTOC"]]) ) return()
+
+  plotsContainer[["plotTOC"]] <-
+    createJaspPlot(
+      title        = gettext("Total Operating Characteristic Curve"),
+      dependencies = c("plotTOC", "credibleInterval", "ciLevel"),
+      position     = position,
+      width        = 500,
+      height       = 500,
+    )
+
+  if(ready) plotsContainer[["plotROC"]]$plotObject <-
+    .bcFillPlotTOC(results, dataset, options)
+}
+
+.bcFillPlotTOC <- function(results, dataset, options) {
+  UseMethod(".bcFillPlotTOC")
+}
+
+.bcFillPlotTOC.default <- function(results, dataset, options) {
+  summ <- summary(results, ciLevel = options[["ciLevel"]])
+
+  threshold    <- qnorm(summ["specificity", "estimate"])
+  meanPositive <- qnorm(summ["sensitivity", "estimate"], mean = threshold)
+  prevalence   <- summ["prevalence", "estimate"]
+
+  varyingThreshold <- seq(qnorm(0.01), qnorm(0.99, meanPositive), length.out = 101)
+  data <- data.frame(
+    tp = c(prevalence     * pnorm(varyingThreshold, mean = meanPositive, lower.tail = FALSE)),
+    fp = c((1-prevalence) * pnorm(varyingThreshold,                      lower.tail = FALSE))
+  )
+
+  pointData <- data.frame(tp = summ["truePositive",  "estimate"],
+                          fp = summ["falsePositive", "estimate"])
+
+  leftTriangle <- data.frame(
+    x = c(0, 0,          prevalence),
+    y = c(0, prevalence, prevalence)
+  )
+
+  rightTriangle <- data.frame(
+    x = c(1, 1,          1-prevalence),
+    y = c(0, prevalence, 0           )
+  )
+
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_abline(slope = prevalence, intercept = 0, linetype = 3) +
+    ggplot2::geom_hline(yintercept = prevalence, linetype = 2) +
+    ggplot2::geom_polygon (ggplot2::aes(x = x, y = y),        data = leftTriangle,  fill = "gray") +
+    ggplot2::geom_polygon (ggplot2::aes(x = x, y = y),        data = rightTriangle, fill = "gray") +
+    ggplot2::geom_line    (ggplot2::aes(x = tp + fp, y = tp), data = data) +
+    jaspGraphs::geom_point(ggplot2::aes(x = tp + fp, y = tp), data = pointData)+
+    jaspGraphs::themeJaspRaw() +
+    ggplot2::xlab(gettext("True Positives + False Positives")) +
+    ggplot2::ylab(gettext("True Positives")) +
+    ggplot2::scale_x_continuous(
+      breaks = seq(0, 1, by = 1/4),
+      labels = c("0", ".25", ".5", ".75", "1")
+    )
+
+
+  return(p)
 }
 
 ## Test characteristics ----
