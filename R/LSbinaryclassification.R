@@ -899,7 +899,7 @@ coef.bcPosteriorParams <- function(results) {
       height       = 500,
     )
 
-  if(ready) plotsContainer[["plotROC"]]$plotObject <-
+  if(ready) plotsContainer[["plotTOC"]]$plotObject <-
     .bcFillPlotTOC(results, dataset, options)
 }
 
